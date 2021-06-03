@@ -27,13 +27,21 @@ import "./assets/css/demo.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import AdminLayout from "layouts/Admin.js";
+import Home from "views/Home";
+import store from './app/store';
+import { Provider } from 'react-redux';
 
 ReactDOM.render(
+  <Provider store={store}>
   <BrowserRouter>
     <Switch>
+      <Route path="/home" component={Home} />
       <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
       <Redirect from="/" to="/admin/dashboard" />
     </Switch>
-  </BrowserRouter>,
+  </BrowserRouter>
+  </Provider>,
   document.getElementById("root")
 );
+
+

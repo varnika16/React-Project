@@ -21,63 +21,79 @@ import { useLocation, NavLink } from "react-router-dom";
 import { Nav } from "react-bootstrap";
 
 import logo from "assets/img/reactlogo.png";
+import clsx from 'clsx';
+import { makeStyles } from '@material-ui/core/styles';
+import { useDispatch } from "react-redux";
+import { enable } from "app/sidebarSlice";
+import { disable } from "app/sidebarSlice";
+import { Divider, List, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
+import HomeIcon from '@material-ui/icons/Home';
+import DashboardIcon from '@material-ui/icons/Dashboard';
+import PaymentIcon from '@material-ui/icons/Payment';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import PersonIcon from '@material-ui/icons/Person';
+import PeopleIcon from '@material-ui/icons/People';
+import AccountBalanceIcon from '@material-ui/icons/AccountBalance';
+import { Link } from 'react-router-dom' ; 
+
+const useStyles = makeStyles({
+  list: {
+    width: 300,
+  },
+  fullList: {
+    width: 'auto',
+  },
+});
 
 function Sidebar({ color, image, routes }) {
+  const classes = useStyles();
   const location = useLocation();
   const activeRoute = (routeName) => {
     return location.pathname.indexOf(routeName) > -1 ? "active" : "";
   };
+  const anchor = 'left'
+  const dispatch = useDispatch();
+  const toggleDrawer = (open) => (event) => {
+    if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+    if(open===true)  dispatch(enable())
+    else  dispatch(disable())
+  };
   return (
-    <div className="sidebar" data-image={image} data-color={color}>
-      <div
-        className="sidebar-background"
-        style={{
-          backgroundImage: "url(" + image + ")",
-        }}
-      />
-      <div className="sidebar-wrapper">
-        <div className="logo d-flex align-items-center justify-content-start">
-          <a
-            href="https://www.creative-tim.com?ref=lbd-sidebar"
-            className="simple-text logo-mini mx-1"
-          >
-            <div className="logo-img">
-              <img
-                src={require("assets/img/reactlogo.png").default}
-                alt="..."
-              />
-            </div>
-          </a>
-          <a className="simple-text" href="http://www.creative-tim.com">
-            Creative Tim
-          </a>
-        </div>
-        <Nav>
-          {routes.map((prop, key) => {
-            if (!prop.redirect)
-              return (
-                <li
-                  className={
-                    prop.upgrade
-                      ? "active active-pro"
-                      : activeRoute(prop.layout + prop.path)
-                  }
-                  key={key}
-                >
-                  <NavLink
-                    to={prop.layout + prop.path}
-                    className="nav-link"
-                    activeClassName="active"
-                  >
-                    <i className={prop.icon} />
-                    <p>{prop.name}</p>
-                  </NavLink>
-                </li>
-              );
-            return null;
-          })}
-        </Nav>
-      </div>
+    <div
+      className={clsx(classes.list, {
+        [classes.fullList]: anchor === 'top' || anchor === 'bottom',
+      })}
+      role="presentation"
+      onClick={toggleDrawer(false)}
+      onKeyDown={toggleDrawer(false)}
+    >
+      <List>
+        {['Dashboard', 'Home', 'Invoice', 'Notifications'].map((text, index) => (
+          <Link to= {index===0 ? '/' : index===1 ? '/home' : '/' }>
+          <ListItem button key={text}>
+            <ListItemIcon>{index === 0 ? <DashboardIcon /> : index == 1 ? <HomeIcon /> : index == 2 ? <PaymentIcon /> : index == 3 ? < NotificationsIcon /> : null}</ListItemIcon>
+            <ListItemText primary={text} style= {{color: 'black'}} />
+          </ListItem>
+          </Link>
+        ))}
+      </List>
+      <Divider />
+      <List>
+
+        {['Users', 'Clients', 'Accounts'].map((text, index) => (
+          <Link to=  '/'  >
+          <ListItem button key={text}>
+            <ListItemIcon>{index === 0 ? <PersonIcon /> : index == 1 ? <PeopleIcon /> : index == 2 ? <AccountBalanceIcon /> : null}</ListItemIcon>
+            <ListItemText primary={text} style={{ color: 'black'}} />
+          
+            
+            </ListItem>
+            </Link>
+        ))}
+        
+      </List>
     </div>
   );
 }

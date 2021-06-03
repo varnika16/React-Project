@@ -20,12 +20,17 @@ import { useLocation, Route, Switch } from "react-router-dom";
 
 import AdminNavbar from "components/Navbars/AdminNavbar";
 import Footer from "components/Footer/Footer";
-import Sidebar from "components/Sidebar/Sidebar";
 import FixedPlugin from "components/FixedPlugin/FixedPlugin.js";
 
 import routes from "routes.js";
 
 import sidebarImage from "assets/img/sidebar-3.jpg";
+import Sidebar from "components/Sidebar/Sidebar";
+//import toggleDrawer from '../util'
+import { useSelector } from 'react-redux';
+import { disable, enable, selectSidebar } from '../app/sidebarSlice';
+import { SwipeableDrawer } from "@material-ui/core";
+import { useDispatch } from 'react-redux';
 
 function Admin() {
   const [image, setImage] = React.useState(sidebarImage);
@@ -48,6 +53,7 @@ function Admin() {
       }
     });
   };
+  var sidebar = useSelector(selectSidebar); 
   React.useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
@@ -61,26 +67,36 @@ function Admin() {
       element.parentNode.removeChild(element);
     }
   }, [location]);
+
+  
+  const dispatch = useDispatch();
+  const toggleDrawer = (open) => (event) => {
+    if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+    if(open===true)  dispatch(enable())
+    else  dispatch(disable())
+  };
   return (
     <>
       <div className="wrapper">
-        <Sidebar color={color} image={hasImage ? image : ""} routes={routes} />
-        <div className="main-panel" ref={mainPanel}>
-          <AdminNavbar />
+      <SwipeableDrawer
+                anchor='left'
+                open={sidebar}
+                onClose={toggleDrawer(false)}
+                onOpen={toggleDrawer(true)} 
+              >
+                <Sidebar color={color} image={image} routes={routes} />
+          </SwipeableDrawer>
+         {/* <Sidebar color={color} image={hasImage ? image : ""} routes={routes} />  */}
+        <div ref={mainPanel}>
+          <AdminNavbar color={color} image={hasImage ? image : ""} routes={routes} />
           <div className="content">
             <Switch>{getRoutes(routes)}</Switch>
           </div>
-          <Footer />
         </div>
       </div>
-      <FixedPlugin
-        hasImage={hasImage}
-        setHasImage={() => setHasImage(!hasImage)}
-        color={color}
-        setColor={(color) => setColor(color)}
-        image={image}
-        setImage={(image) => setImage(image)}
-      />
+
     </>
   );
 }
